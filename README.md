@@ -1,5 +1,6 @@
-# 🧠 MindLens - https://mindlens-tw26.onrender.com/
+# 🧠 MindLens 
 
+## https://mindlens-tw26.onrender.com/
 ## Three perspectives. One clearer picture.
 
 MindLens is an AI-assisted, counselor-facing platform that helps schools bring together **Student, Parent, and Teacher perspectives** around the same student.
