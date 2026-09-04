@@ -21,9 +21,9 @@ export default function LoginPage() {
       const endpoint = isLogin ? '/api/v1/auth/login' : '/api/v1/auth/signup';
       const body = isLogin ? { email, password } : { name, email, password };
       
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+     const API_URL = 'https://mindlens-dy78.onrender.com';
 
-const res = await fetch(`${https://mindlens-dy78.onrender.com/}${endpoint}`, {
+const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
