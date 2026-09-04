@@ -1,4 +1,4 @@
-# 🧠 MindLens
+# 🧠 MindLens - https://mindlens-tw26.onrender.com/
 
 ## Three perspectives. One clearer picture.
 
