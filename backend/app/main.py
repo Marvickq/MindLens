@@ -2,6 +2,7 @@
 FastAPI Application — MindLens Signal Platform Backend.
 """
 import logging
+import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,9 +12,8 @@ from sqlmodel import Session, select
 from app.config import get_settings
 from app.database import create_db_and_tables, apply_migrations, engine
 from app.api import auth, cases, intake, personalization
-from app.models.assessment import (
-    AssessmentVersion, Dimension, Question, ResponseType,
-)
+from app.models.counselor import Organization, User, UserRole
+from app.utils.security import hash_password
 from app.models.signal_evidence import SignalEvidence  # noqa: F401
 from app.models.discrepancy import DiscrepancyMethodConfig  # noqa: F401
 from app.models.personalization import CaseCustomQuestion  # noqa: F401
@@ -22,6 +22,40 @@ from app.services.signal_service import reconcile_signal_state
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+def seed_organization_if_needed():
+    """Ensure a default organization and demo counselor exist."""
+    DEV_ORG_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+    DEV_COUNSELOR_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
+
+    with Session(engine) as db:
+        # Seed Organization
+        org = db.get(Organization, DEV_ORG_ID)
+
+        if not org:
+            org = Organization(
+                id=DEV_ORG_ID,
+                name="Greenwood High School",
+            )
+            db.add(org)
+            db.commit()
+
+        # Seed demo counselor
+        user = db.get(User, DEV_COUNSELOR_ID)
+
+        if not user:
+            user = User(
+                id=DEV_COUNSELOR_ID,
+                organization_id=DEV_ORG_ID,
+                name="Sarah Chen",
+                email="sarah.chen@greenwood.edu",
+                password_hash=hash_password("MindLens2024!"),
+                role=UserRole.COUNSELOR,
+                is_active=True,
+            )
+            db.add(user)
+            db.commit()
+
+        logger.info("Default organization and counselor verified.")
 
 def seed_questionnaire_if_needed():
     """Ensure dimensions and basic sample questions exist."""
@@ -99,8 +133,11 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     apply_migrations()
     seed_questionnaire_if_needed()
+    seed_organization_if_needed()
+
     with Session(engine) as db:
         reconcile_signal_state(db)
+
     logger.info("MindLens backend started.")
     yield
     logger.info("MindLens backend shutting down.")
