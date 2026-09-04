@@ -112,7 +112,13 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
-
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "MindLens Backend",
+        "version": "1.0.0"
+    }
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
